@@ -204,6 +204,9 @@ document.addEventListener('DOMContentLoaded', () => {
     return {
       mode: 'shape',
       newFontSize,
+      // Pin this exact line height on apply, otherwise Figma's AUTO line height
+      // renders taller than we planned and the text overflows the shape.
+      lineHeight: newFontSize * ratio,
       lineCount: lines.length,
       brokenText: lines.join('\n'),
       box: { x: shape.x, y: shape.y, width: shape.width, height: shape.height },
@@ -319,6 +322,7 @@ document.addEventListener('DOMContentLoaded', () => {
             mode: t.mode,
             text: t.mode === 'shape' ? t.brokenText : undefined,
             box: t.mode === 'shape' ? t.box : undefined,
+            lineHeight: t.mode === 'shape' ? t.lineHeight : undefined,
           },
         },
       }, '*');

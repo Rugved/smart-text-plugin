@@ -4385,6 +4385,9 @@
       return {
         mode: "shape",
         newFontSize,
+        // Pin this exact line height on apply, otherwise Figma's AUTO line height
+        // renders taller than we planned and the text overflows the shape.
+        lineHeight: newFontSize * ratio,
         lineCount: lines.length,
         brokenText: lines.join("\n"),
         box: { x: shape.x, y: shape.y, width: shape.width, height: shape.height },
@@ -4477,7 +4480,8 @@
               fontSize: t.newFontSize,
               mode: t.mode,
               text: t.mode === "shape" ? t.brokenText : void 0,
-              box: t.mode === "shape" ? t.box : void 0
+              box: t.mode === "shape" ? t.box : void 0,
+              lineHeight: t.mode === "shape" ? t.lineHeight : void 0
             }
           }
         }, "*");

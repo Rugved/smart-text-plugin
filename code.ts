@@ -38,6 +38,7 @@ interface ApplyData {
   mode: 'box' | 'shape'
   text?: string
   box?: ShapeBox
+  lineHeight?: number
 }
 
 // This shows the HTML page in "ui.html".
@@ -160,6 +161,11 @@ async function handleApplyFontSize(data: ApplyData) {
     node.textAlignVertical = 'CENTER';
     node.characters = data.text;
     node.fontSize = data.fontSize;
+    // Pin the line height to what the fit planned. Without this Figma uses AUTO
+    // line height (taller) and the text overflows the shape.
+    if (data.lineHeight != null) {
+      node.lineHeight = { value: data.lineHeight, unit: 'PIXELS' };
+    }
     // Overlay the text box exactly on the shape.
     node.x = data.box.x;
     node.y = data.box.y;
