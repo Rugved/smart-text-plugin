@@ -45,6 +45,7 @@ interface ApplyData {
   text?: string
   box?: ShapeBox
   lineHeight?: number
+  align?: 'LEFT' | 'CENTER'
 }
 
 // This shows the HTML page in "ui.html".
@@ -197,7 +198,7 @@ async function handleApplyFontSize(data: ApplyData) {
 
   if (data.mode === 'shape' && data.text != null && data.box) {
     // Approach A: pre-broken lines + centered alignment approximate the shape.
-    node.textAlignHorizontal = 'CENTER';
+    node.textAlignHorizontal = data.align === 'LEFT' ? 'LEFT' : 'CENTER';
     node.textAlignVertical = 'CENTER';
     node.characters = data.text;
     node.fontSize = data.fontSize;

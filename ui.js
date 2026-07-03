@@ -132,19 +132,21 @@ document.addEventListener('DOMContentLoaded', () => {
     ctx.restore();
 
     const data = ctx.getImageData(0, 0, W, H).data;
-    // Precompute the widest continuous "inside" horizontal run per pixel row.
+    // Precompute the widest "inside" run per pixel row, and how much of the
+    // bounding box the shape fills (~1.0 rectangle, ~0.79 circle).
     const runs = new Array(H);
+    let insideCount = 0;
     for (let r = 0; r < H; r++) {
       const base = r * W * 4;
       let bestLo = -1, bestHi = -1, lo = -1;
       for (let x = 0; x <= W; x++) {
         const inside = x < W && data[base + x * 4 + 3] > 10;
-        if (inside) { if (lo < 0) lo = x; }
+        if (inside) { insideCount++; if (lo < 0) lo = x; }
         else if (lo >= 0) { if (x - lo > bestHi - bestLo) { bestLo = lo; bestHi = x; } lo = -1; }
       }
       runs[r] = bestLo < 0 ? null : [bestLo, bestHi];
     }
-    return { W, H, scale, runs };
+    return { W, H, scale, runs, fillRatio: insideCount / (W * H) };
   }
 
   // Widest span (in shape units) that fits inside the shape across a whole
@@ -172,6 +174,50 @@ document.addEventListener('DOMContentLoaded', () => {
     const cy = H / 2; // matches Figma's vertical-center alignment in the bbox
     const ratio = data.fontSize > 0 ? data.lineHeight / data.fontSize : 1.25;
     const k = widthFactor(data); // Pretext-vs-Figma width correction
+
+    // Rectangle-like shapes read as a normal text box: filled, LEFT-aligned,
+    // with padding. We still insert our OWN (corrected) line breaks so Figma
+    // renders them verbatim instead of re-wrapping at different points.
+    if (mask.fillRatio >= 0.90) {
+      const padX = Math.min(24, Math.max(4, Math.round(shape.width * 0.05)));
+      const padY = Math.min(24, Math.max(4, Math.round(shape.height * 0.05)));
+      const innerW = Math.max(1, shape.width - 2 * padX);
+      const innerH = Math.max(1, shape.height - 2 * padY);
+
+      const wrapAt = (fs) => {
+        const prepared = prepareWithSegments(text, fontStr(fs, family));
+        const eff = innerW / k; // corrected width Figma will actually honour
+        let cursor = START_CURSOR;
+        const lines = [];
+        for (let guard = 0; guard < 4000; guard++) {
+          const range = layoutNextLineRange(prepared, cursor, eff);
+          if (!range) break;
+          if (range.width > eff + 0.5) return { ok: false, lines }; // word too wide
+          lines.push(materializeLineRange(prepared, range).text);
+          cursor = range.end;
+        }
+        return { ok: lines.length * fs * ratio <= innerH * SAFETY, lines };
+      };
+
+      let rlo = 1, rhi = Math.max(2, innerH / ratio);
+      for (let i = 0; i < 40; i++) {
+        const mid = (rlo + rhi) / 2;
+        if (wrapAt(mid).ok) rlo = mid; else rhi = mid;
+      }
+      const rFont = roundFont(rlo);
+      const res = wrapAt(rFont);
+      const lines = res.ok ? res.lines.map(l => l.replace(/\s+$/, '')) : [text];
+      return {
+        mode: 'shape',
+        align: 'LEFT',
+        newFontSize: rFont,
+        lineHeight: rFont * ratio,
+        lineCount: lines.length,
+        brokenText: lines.join('\n'),
+        box: { x: shape.x + padX, y: shape.y + padY, width: innerW, height: innerH },
+        fitsBox: res.ok,
+      };
+    }
 
     // Lay all text into a vertically-centered block of `nSlots` lines,
     // giving each line the width available inside the shape at its band.
@@ -226,6 +272,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     return {
       mode: 'shape',
+      align: 'CENTER', // centered lines form the tapered silhouette
       newFontSize,
       // Pin this exact line height on apply, otherwise Figma's AUTO line height
       // renders taller than we planned and the text overflows the shape.
@@ -346,6 +393,7 @@ document.addEventListener('DOMContentLoaded', () => {
             text: t.mode === 'shape' ? t.brokenText : undefined,
             box: t.mode === 'shape' ? t.box : undefined,
             lineHeight: t.lineHeight,
+            align: t.mode === 'shape' ? t.align : undefined,
           },
         },
       }, '*');
