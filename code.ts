@@ -212,5 +212,10 @@ async function handleApplyFontSize(data: ApplyData) {
     node.resize(data.box.width, data.box.height);
   } else {
     node.fontSize = data.fontSize;
+    // Pin line height too, so an old fixed-pixel line height can't make the
+    // resized text overlap itself.
+    if (data.lineHeight != null) {
+      node.lineHeight = { value: data.lineHeight, unit: 'PIXELS' };
+    }
   }
 }

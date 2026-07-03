@@ -4285,6 +4285,9 @@
       return {
         mode: "box",
         newFontSize,
+        // Pin line height so a fixed-pixel line height left over from a previous
+        // apply can't stay small and make the bigger text overlap itself.
+        lineHeight: newFontSize * ratio,
         lineCount,
         newHeight: Math.ceil(height),
         boxHeight: Math.round(boxH),
@@ -4499,7 +4502,7 @@
               mode: t.mode,
               text: t.mode === "shape" ? t.brokenText : void 0,
               box: t.mode === "shape" ? t.box : void 0,
-              lineHeight: t.mode === "shape" ? t.lineHeight : void 0
+              lineHeight: t.lineHeight
             }
           }
         }, "*");

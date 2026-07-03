@@ -96,6 +96,9 @@ document.addEventListener('DOMContentLoaded', () => {
     return {
       mode: 'box',
       newFontSize,
+      // Pin line height so a fixed-pixel line height left over from a previous
+      // apply can't stay small and make the bigger text overlap itself.
+      lineHeight: newFontSize * ratio,
       lineCount,
       newHeight: Math.ceil(height),
       boxHeight: Math.round(boxH),
@@ -342,7 +345,7 @@ document.addEventListener('DOMContentLoaded', () => {
             mode: t.mode,
             text: t.mode === 'shape' ? t.brokenText : undefined,
             box: t.mode === 'shape' ? t.box : undefined,
-            lineHeight: t.mode === 'shape' ? t.lineHeight : undefined,
+            lineHeight: t.lineHeight,
           },
         },
       }, '*');
