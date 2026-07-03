@@ -4196,6 +4196,14 @@
   function measureLineStats(prepared, maxWidth) {
     return measurePreparedLineGeometry(getInternalPrepared(prepared), maxWidth);
   }
+  function measureNaturalWidth(prepared) {
+    let maxWidth = 0;
+    walkPreparedLinesRaw(getInternalPrepared(prepared), Number.POSITIVE_INFINITY, (width) => {
+      if (width > maxWidth)
+        maxWidth = width;
+    });
+    return maxWidth;
+  }
   function layoutNextLineRange(prepared, start, maxWidth) {
     const internal = getInternalPrepared(prepared);
     const end = {
@@ -4245,6 +4253,13 @@
     }
     function roundFont(fs) {
       return Math.max(1, Math.floor(fs * 2) / 2);
+    }
+    function widthFactor(data) {
+      if (!data.sample || !(data.sampleWidth > 0) || !(data.sampleFontSize > 0)) return 1;
+      const prepared = prepareWithSegments(data.sample, fontStr(data.sampleFontSize, data.fontFamily));
+      const pretextW = measureNaturalWidth(prepared);
+      if (!(pretextW > 0)) return 1;
+      return Math.min(2, Math.max(0.5, data.sampleWidth / pretextW));
     }
     function fitFontToBox(data) {
       const { fontFamily: family, characters: text, currentWidth: boxW, currentHeight: boxH } = data;
@@ -4336,6 +4351,7 @@
       const H = shape.height;
       const cy = H / 2;
       const ratio = data.fontSize > 0 ? data.lineHeight / data.fontSize : 1.25;
+      const k = widthFactor(data);
       function layoutInSlots(prepared, fs, nSlots) {
         const lineH = fs * ratio;
         const blockTop = cy - nSlots * lineH / 2;
@@ -4348,13 +4364,14 @@
             lines2.push({ text: "", empty: true });
             continue;
           }
-          const range = layoutNextLineRange(prepared, cursor, slotWidth);
+          const effSlot = slotWidth / k;
+          const range = layoutNextLineRange(prepared, cursor, effSlot);
           if (!range) return { ok: true, lines: lines2, usedLines: i };
-          if (range.width > slotWidth + 0.5) return { ok: false };
+          if (range.width > effSlot + 0.5) return { ok: false };
           lines2.push({ text: materializeLineRange(prepared, range).text });
           cursor = range.end;
         }
-        const more = layoutNextLineRange(prepared, cursor, shape.width * CIRCLE_PAD);
+        const more = layoutNextLineRange(prepared, cursor, shape.width * CIRCLE_PAD / k);
         return { ok: !more, lines: lines2, usedLines: nSlots };
       }
       function fits(fs) {

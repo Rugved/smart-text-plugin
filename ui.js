@@ -3,6 +3,7 @@ import {
   prepareWithSegments,
   layout,
   measureLineStats,
+  measureNaturalWidth,
   layoutNextLineRange,
   materializeLineRange,
 } from '@chenglou/pretext';
@@ -49,6 +50,19 @@ document.addEventListener('DOMContentLoaded', () => {
   // Round DOWN to nearest 0.5px so we never tip over the fitting edge.
   function roundFont(fs) {
     return Math.max(1, Math.floor(fs * 2) / 2);
+  }
+
+  // Correction factor between Figma's real rendered width and Pretext's canvas
+  // measurement. k > 1 means Figma renders WIDER than Pretext measured (the
+  // font isn't available to the plugin canvas), so we must feed Pretext
+  // narrower widths (slotWidth / k) to break lines where Figma actually will.
+  function widthFactor(data) {
+    if (!data.sample || !(data.sampleWidth > 0) || !(data.sampleFontSize > 0)) return 1;
+    const prepared = prepareWithSegments(data.sample, fontStr(data.sampleFontSize, data.fontFamily));
+    const pretextW = measureNaturalWidth(prepared);
+    if (!(pretextW > 0)) return 1;
+    // Clamp so a bad measurement can never wreck the layout.
+    return Math.min(2, Math.max(0.5, data.sampleWidth / pretextW));
   }
 
   // --- Fit: largest font size that fits inside a rectangular box ---
@@ -151,6 +165,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const H = shape.height;
     const cy = H / 2; // matches Figma's vertical-center alignment in the bbox
     const ratio = data.fontSize > 0 ? data.lineHeight / data.fontSize : 1.25;
+    const k = widthFactor(data); // Pretext-vs-Figma width correction
 
     // Lay all text into a vertically-centered block of `nSlots` lines,
     // giving each line the width available inside the shape at its band.
@@ -164,13 +179,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const slotWidth = widthAtBand(mask, yCenter - lineH / 2, yCenter + lineH / 2) * CIRCLE_PAD;
         if (slotWidth <= 0) { lines.push({ text: '', empty: true }); continue; }
 
-        const range = layoutNextLineRange(prepared, cursor, slotWidth);
+        // Break at the corrected width so the line fits Figma's real rendering.
+        const effSlot = slotWidth / k;
+        const range = layoutNextLineRange(prepared, cursor, effSlot);
         if (!range) return { ok: true, lines, usedLines: i };
-        if (range.width > slotWidth + 0.5) return { ok: false }; // word too wide for this slot
+        if (range.width > effSlot + 0.5) return { ok: false }; // word too wide for this slot
         lines.push({ text: materializeLineRange(prepared, range).text });
         cursor = range.end;
       }
-      const more = layoutNextLineRange(prepared, cursor, shape.width * CIRCLE_PAD);
+      const more = layoutNextLineRange(prepared, cursor, (shape.width * CIRCLE_PAD) / k);
       return { ok: !more, lines, usedLines: nSlots };
     }
 
