@@ -16,6 +16,12 @@ interface TextData {
   currentWidth: number
   currentHeight: number
   shape: ShapeData | null
+  // Font calibration: Figma's real rendered width of `sample` at `sampleFontSize`.
+  // The UI compares this against Pretext's measurement to correct for fonts the
+  // plugin's canvas can't measure accurately (see handleGetSelectedText).
+  sample: string
+  sampleWidth: number
+  sampleFontSize: number
   id: string
 }
 
@@ -54,7 +60,7 @@ figma.showUI(__html__, {
 figma.ui.onmessage = async (msg) => {
   // Handle different message types from the UI
   if (msg.type === 'get-selected-text') {
-    handleGetSelectedText();
+    await handleGetSelectedText();
   }
 
   if (msg.type === 'apply-font-size') {
@@ -66,8 +72,32 @@ figma.ui.onmessage = async (msg) => {
   }
 };
 
+// Reference size for the calibration sample (width scales linearly, so the
+// exact value cancels out — a larger one just gives a more precise ratio).
+const CALIBRATION_SIZE = 100;
+
+// Measure Figma's real rendered width of a sample string in a given font,
+// using a throwaway hidden text node. Returns 0 on any failure (UI treats
+// that as "no correction").
+async function measureFigmaWidth(fontName: FontName, sample: string): Promise<number> {
+  try {
+    await figma.loadFontAsync(fontName);
+    const probe = figma.createText();
+    probe.visible = false;
+    probe.fontName = fontName;
+    probe.fontSize = CALIBRATION_SIZE;
+    probe.textAutoResize = 'WIDTH_AND_HEIGHT';
+    probe.characters = sample;
+    const width = probe.width;
+    probe.remove();
+    return width;
+  } catch (e) {
+    return 0;
+  }
+}
+
 // Function to read selected text layers and send data to UI
-function handleGetSelectedText() {
+async function handleGetSelectedText() {
   const selection = figma.currentPage.selection;
   
   // Filter to only text nodes
@@ -101,14 +131,15 @@ function handleGetSelectedText() {
     : null;
   
   // Extract text data from each selected node
-  const textDataList: TextData[] = textNodes.map(node => {
+  const textDataList: TextData[] = [];
+  for (const node of textNodes) {
     // Handle font size (can be a number or object)
-    const fontSize = typeof node.fontSize === 'number' 
-      ? node.fontSize 
+    const fontSize = typeof node.fontSize === 'number'
+      ? node.fontSize
       : 12;
-    
+
     const fontName = node.fontName as FontName;
-    
+
     // Handle line height (can be 'AUTO' or an object)
     let lineHeightPx = 1.25 * fontSize; // default fallback for AUTO (~font's built-in metric)
     if (node.lineHeight && typeof node.lineHeight === 'object') {
@@ -118,8 +149,14 @@ function handleGetSelectedText() {
         lineHeightPx = (node.lineHeight.value / 100) * fontSize;
       }
     }
-    
-    return {
+
+    // Calibration sample: a slice of the real text (its actual glyphs), on one
+    // line. Figma measures its true width; the UI compares against Pretext.
+    const sample = (node.characters.replace(/\s+/g, ' ').trim() || 'The quick brown fox')
+      .substring(0, 200);
+    const sampleWidth = await measureFigmaWidth(fontName, sample);
+
+    textDataList.push({
       characters: node.characters,
       fontSize: fontSize,
       fontFamily: fontName.family,
@@ -128,10 +165,13 @@ function handleGetSelectedText() {
       currentWidth: node.width,
       currentHeight: node.height,
       shape: shape,
+      sample: sample,
+      sampleWidth: sampleWidth,
+      sampleFontSize: CALIBRATION_SIZE,
       id: node.id
-    };
-  });
-  
+    });
+  }
+
   // Send the collected data to the UI
   figma.ui.postMessage({
     type: 'text-data',
