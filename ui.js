@@ -71,12 +71,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const { fontFamily: family, characters: text, currentWidth: boxW, currentHeight: boxH } = data;
     const ratio = data.fontSize > 0 ? data.lineHeight / data.fontSize : 1.25;
     const targetH = boxH * SAFETY;
+    // Wrap at the corrected width so Pretext's line count / height match how
+    // Figma will actually wrap the real font at boxW.
+    const effW = boxW / widthFactor(data);
 
     const fits = (fs) => {
       const prepared = prepareWithSegments(text, fontStr(fs, family));
-      const { height } = layout(prepared, boxW, fs * ratio);
-      const { maxLineWidth } = measureLineStats(prepared, boxW);
-      return height <= targetH && maxLineWidth <= boxW;
+      const { height } = layout(prepared, effW, fs * ratio);
+      const { maxLineWidth } = measureLineStats(prepared, effW);
+      return height <= targetH && maxLineWidth <= effW;
     };
 
     let lo = 1;
@@ -88,7 +91,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const newFontSize = roundFont(lo);
 
     const prepared = prepareWithSegments(text, fontStr(newFontSize, family));
-    const { height, lineCount } = layout(prepared, boxW, newFontSize * ratio);
+    const { height, lineCount } = layout(prepared, effW, newFontSize * ratio);
 
     return {
       mode: 'box',

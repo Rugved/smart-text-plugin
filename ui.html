@@ -4265,11 +4265,12 @@
       const { fontFamily: family, characters: text, currentWidth: boxW, currentHeight: boxH } = data;
       const ratio = data.fontSize > 0 ? data.lineHeight / data.fontSize : 1.25;
       const targetH = boxH * SAFETY;
+      const effW = boxW / widthFactor(data);
       const fits = (fs) => {
         const prepared2 = prepareWithSegments(text, fontStr(fs, family));
-        const { height: height2 } = layout(prepared2, boxW, fs * ratio);
-        const { maxLineWidth } = measureLineStats(prepared2, boxW);
-        return height2 <= targetH && maxLineWidth <= boxW;
+        const { height: height2 } = layout(prepared2, effW, fs * ratio);
+        const { maxLineWidth } = measureLineStats(prepared2, effW);
+        return height2 <= targetH && maxLineWidth <= effW;
       };
       let lo = 1;
       let hi = Math.max(2, boxH / ratio);
@@ -4280,7 +4281,7 @@
       }
       const newFontSize = roundFont(lo);
       const prepared = prepareWithSegments(text, fontStr(newFontSize, family));
-      const { height, lineCount } = layout(prepared, boxW, newFontSize * ratio);
+      const { height, lineCount } = layout(prepared, effW, newFontSize * ratio);
       return {
         mode: "box",
         newFontSize,
