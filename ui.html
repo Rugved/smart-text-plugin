@@ -306,6 +306,49 @@
       0%, 100% { transform: translate(0, 0); }
       50% { transform: translate(-4px, -4px); }
     }
+    /* --- Settings sliders --- */
+    .settings {
+      display: none;
+      background: #f8f9fa;
+      border: 1px solid #e8e8e8;
+      border-radius: 6px;
+      padding: 12px;
+      margin-bottom: 12px;
+    }
+    .setting-row + .setting-row {
+      margin-top: 12px;
+    }
+    .setting-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: #444;
+      margin-bottom: 6px;
+    }
+    .setting-value {
+      color: #18A0FB;
+      font-weight: 600;
+    }
+    .settings input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 4px;
+      border-radius: 2px;
+      background: #d8dde3;
+      outline: none;
+    }
+    .settings input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #18A0FB;
+      cursor: pointer;
+      border: 2px solid #ffffff;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    }
   </style>
 </head>
 <body>
@@ -324,6 +367,16 @@
       <h2>Results</h2>
       <div id="summary" class="summary"></div>
       <div id="text-list" class="text-list"></div>
+      <div id="settings" class="settings">
+        <div class="setting-row">
+          <div class="setting-label"><span>Padding</span><span id="pad-val" class="setting-value">5%</span></div>
+          <input type="range" id="pad-slider" min="0" max="15" step="1" value="5">
+        </div>
+        <div class="setting-row">
+          <div class="setting-label"><span>Width fill</span><span id="fill-val" class="setting-value">98%</span></div>
+          <input type="range" id="fill-slider" min="85" max="100" step="1" value="98">
+        </div>
+      </div>
       <button id="apply-button" class="apply-button">✨ Apply smart text</button>
     </div>
 
@@ -4236,6 +4289,11 @@
     const textListDiv = document.getElementById("text-list");
     const applyButton = document.getElementById("apply-button");
     const hintDiv = document.getElementById("hint");
+    const settingsDiv = document.getElementById("settings");
+    const padSlider = document.getElementById("pad-slider");
+    const fillSlider = document.getElementById("fill-slider");
+    const padVal = document.getElementById("pad-val");
+    const fillVal = document.getElementById("fill-val");
     let measuredTexts = [];
     let lastData = null;
     const settings = { padding: 5, widthFill: 98 };
@@ -4484,6 +4542,7 @@
       resultsDiv.style.display = "block";
       const anyShape = texts.some((t) => t.mode === "shape");
       summaryDiv.textContent = `\u{1F4CA} ${texts.length} layer${texts.length > 1 ? "s" : ""} \xB7 ${anyShape ? "fit into shape" : "fit font to box"}`;
+      settingsDiv.style.display = texts.some((t) => t.isRect) ? "block" : "none";
       textListDiv.innerHTML = texts.map((t) => {
         const changed = t.newFontSize !== t.currentFontSize;
         const size = changed ? `${t.currentFontSize}px \u2192 <span class="value highlight">${t.newFontSize}px</span>` : `${t.newFontSize}px <span class="value">(no change)</span>`;
@@ -4540,7 +4599,7 @@
       infoBadge.style.display = "none";
       parent.postMessage({ pluginMessage: { type: "get-selected-text" } }, "*");
     });
-    applyButton.addEventListener("click", () => {
+    function applyToFigma() {
       if (measuredTexts.length === 0) return;
       measuredTexts.forEach((t) => {
         parent.postMessage({
@@ -4559,8 +4618,25 @@
         }, "*");
       });
       infoBadge.style.display = "block";
-      infoBadge.textContent = "\u2705 Applied! Tweak the shape and measure again, or close the plugin.";
-    });
+      infoBadge.textContent = "\u2705 Applied! Tweak the sliders, or close the plugin.";
+    }
+    applyButton.addEventListener("click", applyToFigma);
+    function recompute() {
+      if (!lastData) return;
+      renderResults(measureTexts(lastData));
+    }
+    function bindSlider(slider, valEl, key, suffix) {
+      slider.addEventListener("input", () => {
+        settings[key] = Number(slider.value);
+        valEl.textContent = slider.value + suffix;
+        recompute();
+      });
+      slider.addEventListener("change", () => {
+        applyToFigma();
+      });
+    }
+    bindSlider(padSlider, padVal, "padding", "%");
+    bindSlider(fillSlider, fillVal, "widthFill", "%");
     const demoSlides = Array.from(document.querySelectorAll(".demo-slide"));
     const demoDots = Array.from(document.querySelectorAll(".demo-dots .dot"));
     if (demoSlides.length) {

@@ -28,6 +28,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const textListDiv = document.getElementById('text-list');
   const applyButton = document.getElementById('apply-button');
   const hintDiv = document.getElementById('hint');
+  const settingsDiv = document.getElementById('settings');
+  const padSlider = document.getElementById('pad-slider');
+  const fillSlider = document.getElementById('fill-slider');
+  const padVal = document.getElementById('pad-val');
+  const fillVal = document.getElementById('fill-val');
 
   let measuredTexts = [];
   // Last analysed input, so we can re-fit when the settings sliders change.
@@ -318,6 +323,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const anyShape = texts.some(t => t.mode === 'shape');
     summaryDiv.textContent = `📊 ${texts.length} layer${texts.length > 1 ? 's' : ''} · ${anyShape ? 'fit into shape' : 'fit font to box'}`;
 
+    // Padding / width-fill only affect rectangle fits — show the sliders then.
+    settingsDiv.style.display = texts.some(t => t.isRect) ? 'block' : 'none';
+
     textListDiv.innerHTML = texts.map((t) => {
       const changed = t.newFontSize !== t.currentFontSize;
       const size = changed
@@ -391,7 +399,7 @@ document.addEventListener('DOMContentLoaded', () => {
     parent.postMessage({ pluginMessage: { type: 'get-selected-text' } }, '*');
   });
 
-  applyButton.addEventListener('click', () => {
+  function applyToFigma() {
     if (measuredTexts.length === 0) return;
     measuredTexts.forEach(t => {
       parent.postMessage({
@@ -410,8 +418,30 @@ document.addEventListener('DOMContentLoaded', () => {
       }, '*');
     });
     infoBadge.style.display = 'block';
-    infoBadge.textContent = '✅ Applied! Tweak the shape and measure again, or close the plugin.';
-  });
+    infoBadge.textContent = '✅ Applied! Tweak the sliders, or close the plugin.';
+  }
+  applyButton.addEventListener('click', applyToFigma);
+
+  // Re-fit the panel numbers from the last analysed data with current settings.
+  function recompute() {
+    if (!lastData) return;
+    renderResults(measureTexts(lastData));
+  }
+
+  // Slider drag: update the value + re-fit live in the panel (no canvas write).
+  // Slider release ('change'): apply the new fit to the canvas (Option B).
+  function bindSlider(slider, valEl, key, suffix) {
+    slider.addEventListener('input', () => {
+      settings[key] = Number(slider.value);
+      valEl.textContent = slider.value + suffix;
+      recompute();
+    });
+    slider.addEventListener('change', () => {
+      applyToFigma();
+    });
+  }
+  bindSlider(padSlider, padVal, 'padding', '%');
+  bindSlider(fillSlider, fillVal, 'widthFill', '%');
 
   // --- Onboarding demo carousel (autoplay + loop) ---
   const demoSlides = Array.from(document.querySelectorAll('.demo-slide'));
