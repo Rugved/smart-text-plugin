@@ -327,7 +327,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ? `${t.currentFontSize}px → <span class="value highlight">${t.newFontSize}px</span>`
         : `${t.newFontSize}px <span class="value">(no change)</span>`;
       const fillOrShape = t.mode === 'shape'
-        ? `<span class="detail"><span class="label">Fit:</span><span class="value">▢ shape</span></span>`
+        ? ''
         : `<span class="detail"><span class="label">Fills:</span><span class="value">${t.newHeight}px / ${t.boxHeight}px</span></span>`;
       const warn = t.fitsBox ? '' :
         `<div class="text-preview" style="color:#d32f2f">⚠️ Can't fully fit — shape is too small for this text.</div>`;

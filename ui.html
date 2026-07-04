@@ -4540,7 +4540,7 @@
       textListDiv.innerHTML = texts.map((t) => {
         const changed = t.newFontSize !== t.currentFontSize;
         const size = changed ? `${t.currentFontSize}px \u2192 <span class="value highlight">${t.newFontSize}px</span>` : `${t.newFontSize}px <span class="value">(no change)</span>`;
-        const fillOrShape = t.mode === "shape" ? `<span class="detail"><span class="label">Fit:</span><span class="value">\u25A2 shape</span></span>` : `<span class="detail"><span class="label">Fills:</span><span class="value">${t.newHeight}px / ${t.boxHeight}px</span></span>`;
+        const fillOrShape = t.mode === "shape" ? "" : `<span class="detail"><span class="label">Fills:</span><span class="value">${t.newHeight}px / ${t.boxHeight}px</span></span>`;
         const warn = t.fitsBox ? "" : `<div class="text-preview" style="color:#d32f2f">\u26A0\uFE0F Can't fully fit \u2014 shape is too small for this text.</div>`;
         return `
       <div class="text-item">
