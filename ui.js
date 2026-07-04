@@ -175,7 +175,10 @@ document.addEventListener('DOMContentLoaded', () => {
   // --- Fit: largest font size + line breaks that fit inside any shape ---
 
   function fitFontToShape(data) {
-    const { fontFamily: family, characters: text, shape } = data;
+    const { fontFamily: family, shape } = data;
+    // Flatten any line breaks we inserted on a previous apply so re-applying
+    // re-flows the paragraph fresh instead of compounding old breaks.
+    const text = data.characters.replace(/[\r\n]+/g, ' ');
     const mask = buildMask(shape);
     const H = shape.height;
     const cy = H / 2; // matches Figma's vertical-center alignment in the bbox

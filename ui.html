@@ -4408,7 +4408,8 @@
       return w > 0 ? w / mask.scale : 0;
     }
     function fitFontToShape(data) {
-      const { fontFamily: family, characters: text, shape } = data;
+      const { fontFamily: family, shape } = data;
+      const text = data.characters.replace(/[\r\n]+/g, " ");
       const mask = buildMask(shape);
       const H = shape.height;
       const cy = H / 2;
