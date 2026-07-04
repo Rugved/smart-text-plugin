@@ -186,9 +186,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const wrapAt = (fs) => {
         const prepared = prepareWithSegments(text, fontStr(fs, family));
-        // 4% cushion below innerW so per-line kerning variance can't tip a line
+        // 2% cushion below innerW so per-line kerning variance can't tip a line
         // over the edge and make Figma soft-wrap it into an orphan word.
-        const eff = (innerW * 0.96) / k;
+        const eff = (innerW * 0.98) / k;
         let cursor = START_CURSOR;
         const lines = [];
         for (let guard = 0; guard < 4000; guard++) {

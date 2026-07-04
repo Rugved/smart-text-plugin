@@ -4365,7 +4365,7 @@
         const innerH = Math.max(1, shape.height - 2 * padY);
         const wrapAt = (fs) => {
           const prepared = prepareWithSegments(text, fontStr(fs, family));
-          const eff = innerW * 0.96 / k;
+          const eff = innerW * 0.98 / k;
           let cursor = START_CURSOR;
           const lines3 = [];
           for (let guard = 0; guard < 4e3; guard++) {
