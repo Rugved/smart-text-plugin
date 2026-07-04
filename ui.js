@@ -123,7 +123,14 @@ document.addEventListener('DOMContentLoaded', () => {
     return c;
   }
 
+  // Cache the last rasterized mask so repeated re-fits (e.g. dragging a slider)
+  // don't re-rasterize the same shape every frame.
+  let maskCacheKey = null, maskCacheVal = null;
+
   function buildMask(shape) {
+    const cacheKey = shape.width + 'x' + shape.height + '|' + shape.paths.map(p => p.data.length).join(',');
+    if (cacheKey === maskCacheKey) return maskCacheVal;
+
     const scale = Math.min(1, MASK_MAX / Math.max(shape.width, shape.height));
     const W = Math.max(1, Math.round(shape.width * scale));
     const H = Math.max(1, Math.round(shape.height * scale));
@@ -154,7 +161,9 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       runs[r] = bestLo < 0 ? null : [bestLo, bestHi];
     }
-    return { W, H, scale, runs, fillRatio: insideCount / (W * H) };
+    maskCacheKey = cacheKey;
+    maskCacheVal = { W, H, scale, runs, fillRatio: insideCount / (W * H) };
+    return maskCacheVal;
   }
 
   // Widest span (in shape units) that fits inside the shape across a whole
@@ -433,13 +442,22 @@ document.addEventListener('DOMContentLoaded', () => {
     renderResults(measureTexts(lastData));
   }
 
+  // Throttle the live re-fit to one run per animation frame so dragging a
+  // slider stays smooth (the fit is too heavy to run on every input event).
+  let refitPending = false;
+  function scheduleRecompute() {
+    if (refitPending) return;
+    refitPending = true;
+    requestAnimationFrame(() => { refitPending = false; recompute(); });
+  }
+
   // Slider drag: update the value + re-fit live in the panel (no canvas write).
   // Slider release ('change'): apply the new fit to the canvas (Option B).
   function bindSlider(slider, valEl, key, suffix) {
     slider.addEventListener('input', () => {
       settings[key] = Number(slider.value);
       valEl.textContent = slider.value + suffix;
-      recompute();
+      scheduleRecompute();
     });
     slider.addEventListener('change', () => {
       applyToFigma();
