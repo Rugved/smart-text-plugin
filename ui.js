@@ -46,11 +46,11 @@ document.addEventListener('DOMContentLoaded', () => {
   function hideError() {
     errorMessage.style.display = 'none';
   }
-  // Idle label for the single action button; becomes "Re-apply" after a run.
-  let idleLabel = '✨ Apply smart text';
+  // Idle label for the single action button; becomes "Re-fit text" after a run.
+  let idleLabel = '✨ Fit text';
   function setLoading(isLoading) {
     measureButton.disabled = isLoading;
-    measureButton.textContent = isLoading ? '⏳ Applying…' : idleLabel;
+    measureButton.textContent = isLoading ? '⏳ Fitting…' : idleLabel;
   }
   function fontStr(fs, family) {
     return `${fs}px "${family}"`;
@@ -378,7 +378,7 @@ document.addEventListener('DOMContentLoaded', () => {
         lastData = msg.data;
         renderResults(measureTexts(msg.data));
         applyToFigma(); // one button: analyse + apply in a single action
-        idleLabel = '🔄 Re-apply smart text';
+        idleLabel = 'Re-fit text';
         setLoading(false);
       } catch (err) {
         console.error(err);

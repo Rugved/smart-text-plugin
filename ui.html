@@ -357,7 +357,7 @@
     <p class="subtitle">Measure and resize text layers accurately</p>
 
     <button id="measure-button" class="primary-button">
-      ✨ Apply smart text
+      ✨ Fit text
     </button>
 
     <div id="error-message" class="error-message"></div>
@@ -4298,10 +4298,10 @@
     function hideError() {
       errorMessage.style.display = "none";
     }
-    let idleLabel = "\u2728 Apply smart text";
+    let idleLabel = "\u2728 Fit text";
     function setLoading(isLoading) {
       measureButton.disabled = isLoading;
-      measureButton.textContent = isLoading ? "\u23F3 Applying\u2026" : idleLabel;
+      measureButton.textContent = isLoading ? "\u23F3 Fitting\u2026" : idleLabel;
     }
     function fontStr(fs, family) {
       return `${fs}px "${family}"`;
@@ -4576,7 +4576,7 @@
           lastData = msg.data;
           renderResults(measureTexts(msg.data));
           applyToFigma();
-          idleLabel = "\u{1F504} Re-apply smart text";
+          idleLabel = "Re-fit text";
           setLoading(false);
         } catch (err) {
           console.error(err);
