@@ -21,10 +21,8 @@ const START_CURSOR = { segmentIndex: 0, graphemeIndex: 0 };
 
 document.addEventListener('DOMContentLoaded', () => {
   const measureButton = document.getElementById('measure-button');
-  const infoBadge = document.getElementById('info-badge');
   const errorMessage = document.getElementById('error-message');
   const resultsDiv = document.getElementById('results');
-  const summaryDiv = document.getElementById('summary');
   const textListDiv = document.getElementById('text-list');
   const applyButton = document.getElementById('apply-button');
   const hintDiv = document.getElementById('hint');
@@ -320,9 +318,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (texts.length === 0) { resultsDiv.style.display = 'none'; return; }
     resultsDiv.style.display = 'block';
 
-    const anyShape = texts.some(t => t.mode === 'shape');
-    summaryDiv.textContent = `📊 ${texts.length} layer${texts.length > 1 ? 's' : ''} · ${anyShape ? 'fit into shape' : 'fit font to box'}`;
-
     // Padding / width-fill only affect rectangle fits — show the sliders then.
     settingsDiv.style.display = texts.some(t => t.isRect) ? 'block' : 'none';
 
@@ -369,11 +364,6 @@ document.addEventListener('DOMContentLoaded', () => {
       try {
         lastData = msg.data;
         renderResults(measureTexts(msg.data));
-        infoBadge.style.display = 'block';
-        const shape = msg.data.some(d => d.shape);
-        infoBadge.textContent = shape
-          ? '▢ Shape mode: fitting text inside the selected shape'
-          : `${msg.data.length} text layer${msg.data.length > 1 ? 's' : ''} selected`;
       } catch (err) {
         console.error(err);
         showError('Measurement failed: ' + err.message);
@@ -407,7 +397,6 @@ document.addEventListener('DOMContentLoaded', () => {
     setLoading(true);
     hideError();
     resultsDiv.style.display = 'none';
-    infoBadge.style.display = 'none';
     parent.postMessage({ pluginMessage: { type: 'get-selected-text' } }, '*');
   });
 
@@ -429,8 +418,6 @@ document.addEventListener('DOMContentLoaded', () => {
         },
       }, '*');
     });
-    infoBadge.style.display = 'block';
-    infoBadge.textContent = '✅ Applied! Tweak the sliders, or close the plugin.';
   }
   applyButton.addEventListener('click', applyToFigma);
 

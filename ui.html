@@ -360,12 +360,10 @@
       Analyse selection
     </button>
 
-    <div id="info-badge" class="info-badge"></div>
     <div id="error-message" class="error-message"></div>
 
     <div id="results" class="results">
       <h2>Results</h2>
-      <div id="summary" class="summary"></div>
       <div id="text-list" class="text-list"></div>
       <div id="settings" class="settings">
         <div class="setting-row">
@@ -4282,10 +4280,8 @@
   var START_CURSOR = { segmentIndex: 0, graphemeIndex: 0 };
   document.addEventListener("DOMContentLoaded", () => {
     const measureButton = document.getElementById("measure-button");
-    const infoBadge = document.getElementById("info-badge");
     const errorMessage = document.getElementById("error-message");
     const resultsDiv = document.getElementById("results");
-    const summaryDiv = document.getElementById("summary");
     const textListDiv = document.getElementById("text-list");
     const applyButton = document.getElementById("apply-button");
     const hintDiv = document.getElementById("hint");
@@ -4540,8 +4536,6 @@
         return;
       }
       resultsDiv.style.display = "block";
-      const anyShape = texts.some((t) => t.mode === "shape");
-      summaryDiv.textContent = `\u{1F4CA} ${texts.length} layer${texts.length > 1 ? "s" : ""} \xB7 ${anyShape ? "fit into shape" : "fit font to box"}`;
       settingsDiv.style.display = texts.some((t) => t.isRect) ? "block" : "none";
       textListDiv.innerHTML = texts.map((t) => {
         const changed = t.newFontSize !== t.currentFontSize;
@@ -4576,9 +4570,6 @@
         try {
           lastData = msg.data;
           renderResults(measureTexts(msg.data));
-          infoBadge.style.display = "block";
-          const shape = msg.data.some((d) => d.shape);
-          infoBadge.textContent = shape ? "\u25A2 Shape mode: fitting text inside the selected shape" : `${msg.data.length} text layer${msg.data.length > 1 ? "s" : ""} selected`;
         } catch (err) {
           console.error(err);
           showError("Measurement failed: " + err.message);
@@ -4605,7 +4596,6 @@
       setLoading(true);
       hideError();
       resultsDiv.style.display = "none";
-      infoBadge.style.display = "none";
       parent.postMessage({ pluginMessage: { type: "get-selected-text" } }, "*");
     });
     function applyToFigma() {
@@ -4626,8 +4616,6 @@
           }
         }, "*");
       });
-      infoBadge.style.display = "block";
-      infoBadge.textContent = "\u2705 Applied! Tweak the sliders, or close the plugin.";
     }
     applyButton.addEventListener("click", applyToFigma);
     function recompute() {
