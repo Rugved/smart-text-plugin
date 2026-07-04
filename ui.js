@@ -30,6 +30,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const hintDiv = document.getElementById('hint');
 
   let measuredTexts = [];
+  // Last analysed input, so we can re-fit when the settings sliders change.
+  let lastData = null;
+  // User-tunable fit settings (percentages). Defaults reproduce prior behavior.
+  const settings = { padding: 5, widthFill: 98 };
 
   // --- Helpers ---
 
@@ -179,16 +183,18 @@ document.addEventListener('DOMContentLoaded', () => {
     // with padding. We still insert our OWN (corrected) line breaks so Figma
     // renders them verbatim instead of re-wrapping at different points.
     if (mask.fillRatio >= 0.90) {
-      const padX = Math.min(24, Math.max(4, Math.round(shape.width * 0.05)));
-      const padY = Math.min(24, Math.max(4, Math.round(shape.height * 0.05)));
+      const padPct = settings.padding / 100;
+      const fill = settings.widthFill / 100;
+      const padX = Math.round(shape.width * padPct);
+      const padY = Math.round(shape.height * padPct);
       const innerW = Math.max(1, shape.width - 2 * padX);
       const innerH = Math.max(1, shape.height - 2 * padY);
 
       const wrapAt = (fs) => {
         const prepared = prepareWithSegments(text, fontStr(fs, family));
-        // 2% cushion below innerW so per-line kerning variance can't tip a line
+        // Cushion below innerW so per-line kerning variance can't tip a line
         // over the edge and make Figma soft-wrap it into an orphan word.
-        const eff = (innerW * 0.98) / k;
+        const eff = (innerW * fill) / k;
         let cursor = START_CURSOR;
         const lines = [];
         for (let guard = 0; guard < 4000; guard++) {
@@ -211,6 +217,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const lines = res.ok ? res.lines.map(l => l.replace(/\s+$/, '')) : [text];
       return {
         mode: 'shape',
+        isRect: true,
         align: 'LEFT',
         newFontSize: rFont,
         lineHeight: rFont * ratio,
@@ -274,6 +281,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     return {
       mode: 'shape',
+      isRect: false,
       align: 'CENTER', // centered lines form the tapered silhouette
       newFontSize,
       // Pin this exact line height on apply, otherwise Figma's AUTO line height
@@ -351,6 +359,7 @@ document.addEventListener('DOMContentLoaded', () => {
       hideError();
       hintDiv.style.display = 'none';
       try {
+        lastData = msg.data;
         renderResults(measureTexts(msg.data));
         infoBadge.style.display = 'block';
         const shape = msg.data.some(d => d.shape);
