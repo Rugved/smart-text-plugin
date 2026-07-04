@@ -68,6 +68,15 @@ figma.ui.onmessage = async (msg) => {
     await handleApplyFontSize(msg.data as ApplyData);
   }
 
+  if (msg.type === 'load-settings') {
+    const saved = await figma.clientStorage.getAsync('smart-text-settings');
+    figma.ui.postMessage({ type: 'settings', data: saved || null });
+  }
+
+  if (msg.type === 'save-settings') {
+    await figma.clientStorage.setAsync('smart-text-settings', msg.settings);
+  }
+
   if (msg.type === 'close-plugin') {
     figma.closePlugin();
   }

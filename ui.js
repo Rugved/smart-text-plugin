@@ -386,6 +386,18 @@ document.addEventListener('DOMContentLoaded', () => {
       showError(msg.message);
       resultsDiv.style.display = 'none';
     }
+
+    if (msg.type === 'settings' && msg.data
+        && typeof msg.data.padding === 'number'
+        && typeof msg.data.widthFill === 'number') {
+      settings.padding = msg.data.padding;
+      settings.widthFill = msg.data.widthFill;
+      padSlider.value = settings.padding;
+      fillSlider.value = settings.widthFill;
+      padVal.textContent = settings.padding + '%';
+      fillVal.textContent = settings.widthFill + '%';
+      if (lastData) recompute(); // reflect restored settings if already analysed
+    }
   };
 
   // --- UI events ---
@@ -438,6 +450,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     slider.addEventListener('change', () => {
       applyToFigma();
+      parent.postMessage({ pluginMessage: { type: 'save-settings', settings } }, '*');
     });
   }
   bindSlider(padSlider, padVal, 'padding', '%');
@@ -458,6 +471,9 @@ document.addEventListener('DOMContentLoaded', () => {
       showSlide(di);
     }, 2800);
   }
+
+  // Restore any saved slider settings from a previous session.
+  parent.postMessage({ pluginMessage: { type: 'load-settings' } }, '*');
 
   setLoading(false);
   console.log('✅ Plugin UI ready!');
