@@ -357,7 +357,7 @@
     <p class="subtitle">Measure and resize text layers accurately</p>
 
     <button id="measure-button" class="primary-button">
-      Analyse selection
+      ✨ Apply smart text
     </button>
 
     <div id="error-message" class="error-message"></div>
@@ -375,7 +375,6 @@
           <input type="range" id="fill-slider" min="85" max="100" step="1" value="98">
         </div>
       </div>
-      <button id="apply-button" class="apply-button">✨ Apply smart text</button>
     </div>
 
     <div id="hint">
@@ -4283,7 +4282,6 @@
     const errorMessage = document.getElementById("error-message");
     const resultsDiv = document.getElementById("results");
     const textListDiv = document.getElementById("text-list");
-    const applyButton = document.getElementById("apply-button");
     const hintDiv = document.getElementById("hint");
     const settingsDiv = document.getElementById("settings");
     const padSlider = document.getElementById("pad-slider");
@@ -4300,9 +4298,10 @@
     function hideError() {
       errorMessage.style.display = "none";
     }
+    let idleLabel = "\u2728 Apply smart text";
     function setLoading(isLoading) {
       measureButton.disabled = isLoading;
-      measureButton.textContent = isLoading ? "\u23F3 Analysing\u2026" : "Analyse selection";
+      measureButton.textContent = isLoading ? "\u23F3 Applying\u2026" : idleLabel;
     }
     function fontStr(fs, family) {
       return `${fs}px "${family}"`;
@@ -4571,6 +4570,9 @@
         try {
           lastData = msg.data;
           renderResults(measureTexts(msg.data));
+          applyToFigma();
+          idleLabel = "\u{1F504} Re-apply smart text";
+          setLoading(false);
         } catch (err) {
           console.error(err);
           showError("Measurement failed: " + err.message);
@@ -4618,7 +4620,6 @@
         }, "*");
       });
     }
-    applyButton.addEventListener("click", applyToFigma);
     function recompute() {
       if (!lastData) return;
       renderResults(measureTexts(lastData));

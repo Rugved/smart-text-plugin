@@ -24,7 +24,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const errorMessage = document.getElementById('error-message');
   const resultsDiv = document.getElementById('results');
   const textListDiv = document.getElementById('text-list');
-  const applyButton = document.getElementById('apply-button');
   const hintDiv = document.getElementById('hint');
   const settingsDiv = document.getElementById('settings');
   const padSlider = document.getElementById('pad-slider');
@@ -47,9 +46,11 @@ document.addEventListener('DOMContentLoaded', () => {
   function hideError() {
     errorMessage.style.display = 'none';
   }
+  // Idle label for the single action button; becomes "Re-apply" after a run.
+  let idleLabel = '✨ Apply smart text';
   function setLoading(isLoading) {
     measureButton.disabled = isLoading;
-    measureButton.textContent = isLoading ? '⏳ Analysing…' : 'Analyse selection';
+    measureButton.textContent = isLoading ? '⏳ Applying…' : idleLabel;
   }
   function fontStr(fs, family) {
     return `${fs}px "${family}"`;
@@ -367,6 +368,9 @@ document.addEventListener('DOMContentLoaded', () => {
       try {
         lastData = msg.data;
         renderResults(measureTexts(msg.data));
+        applyToFigma(); // one button: analyse + apply in a single action
+        idleLabel = '🔄 Re-apply smart text';
+        setLoading(false);
       } catch (err) {
         console.error(err);
         showError('Measurement failed: ' + err.message);
@@ -422,7 +426,6 @@ document.addEventListener('DOMContentLoaded', () => {
       }, '*');
     });
   }
-  applyButton.addEventListener('click', applyToFigma);
 
   // Re-fit the panel numbers from the last analysed data with current settings.
   function recompute() {

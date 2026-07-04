@@ -118,7 +118,7 @@ async function handleGetSelectedText() {
   if (textNodes.length === 0) {
     figma.ui.postMessage({
       type: 'error',
-      message: 'Please select at least one text layer'
+      message: 'Select a text layer — and a shape to fit it into.'
     });
     return;
   }
