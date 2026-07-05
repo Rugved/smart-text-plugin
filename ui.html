@@ -37,9 +37,9 @@
     #app > h1 { order: 0; }
     #app > .subtitle { order: 1; }
     #app > #hint { order: 2; margin-bottom: 16px; }
-    #app > #measure-button { order: 3; }
-    #app > #error-message { order: 4; }
-    #app > #results { order: 5; }
+    #app > #error-message { order: 3; }
+    #app > #results { order: 4; }
+    #app > #measure-button { order: 5; margin-top: 4px; }
     #app > .footer { order: 6; }
     h1 {
       font-size: 21px;
@@ -322,7 +322,7 @@
     <p class="subtitle">Measure and resize text layers accurately</p>
 
     <button id="measure-button" class="primary-button">
-      ✨ Fit text
+      Fit text
     </button>
 
     <div id="error-message" class="error-message"></div>
@@ -365,7 +365,7 @@
           <div class="demo-slide">
             <svg viewBox="0 0 240 118" xmlns="http://www.w3.org/2000/svg">
               <rect x="34" y="40" width="172" height="34" rx="8" fill="#6c7bff"/>
-              <text x="120" y="61" text-anchor="middle" fill="#ffffff" font-family="-apple-system, sans-serif" font-size="13" font-weight="600">✨ Fit text</text>
+              <text x="120" y="61" text-anchor="middle" fill="#ffffff" font-family="-apple-system, sans-serif" font-size="13" font-weight="600">Fit text</text>
               <circle cx="150" cy="57" r="14" fill="#6c7bff" class="anim-ripple"/>
               <g class="anim-bob">
                 <path d="M150 60 l0 22 l5.5 -5.5 l4 8 l3.5 -1.5 l-4 -8 l7.5 -0.5 Z" fill="#ececef" stroke="#0d0d0f" stroke-width="1.4" stroke-linejoin="round"/>
@@ -4243,10 +4243,9 @@
     function hideError() {
       errorMessage.style.display = "none";
     }
-    let idleLabel = "\u2728 Fit text";
     function setLoading(isLoading) {
       measureButton.disabled = isLoading;
-      measureButton.textContent = isLoading ? "\u23F3 Fitting\u2026" : idleLabel;
+      measureButton.textContent = isLoading ? "\u23F3 Fitting\u2026" : "Fit text";
     }
     function fontStr(fs, family) {
       return `${fs}px "${family}"`;
@@ -4521,7 +4520,6 @@
           lastData = msg.data;
           renderResults(measureTexts(msg.data));
           applyToFigma();
-          idleLabel = "Re-fit text";
           setLoading(false);
         } catch (err) {
           console.error(err);
