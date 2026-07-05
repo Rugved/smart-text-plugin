@@ -10,16 +10,25 @@
       margin: 0;
       padding: 0;
     }
+    :root {
+      --bg: #0d0d0f;
+      --surface: #1a1a1f;
+      --border: rgba(255, 255, 255, 0.06);
+      --text: #f3f3f5;
+      --text-2: #9a9aa4;
+      --text-3: #63636d;
+      --accent: #6c7bff;
+      --mono: 'SF Mono', ui-monospace, 'JetBrains Mono', Menlo, monospace;
+    }
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-      background: #ffffff;
-      color: #333333;
-      padding: 16px;
+      background: radial-gradient(130% 90% at 50% -20%, #18181d 0%, var(--bg) 58%);
+      color: var(--text-2);
+      padding: 18px;
       margin: 0;
+      -webkit-font-smoothing: antialiased;
     }
-    .container {
-      max-width: 100%;
-    }
+    .container { max-width: 100%; }
     /* Layout order: title, subtitle, demo carousel, then the action button */
     #app {
       display: flex;
@@ -27,184 +36,137 @@
     }
     #app > h1 { order: 0; }
     #app > .subtitle { order: 1; }
-    #app > #hint { order: 2; margin-bottom: 14px; }
+    #app > #hint { order: 2; margin-bottom: 16px; }
     #app > #measure-button { order: 3; }
-    #app > #info-badge { order: 4; }
-    #app > #error-message { order: 5; }
-    #app > #results { order: 6; }
-    #app > .footer { order: 7; }
+    #app > #error-message { order: 4; }
+    #app > #results { order: 5; }
+    #app > .footer { order: 6; }
     h1 {
-      font-size: 20px;
-      font-weight: 600;
-      margin-bottom: 4px;
-      color: #000000;
+      font-size: 21px;
+      font-weight: 650;
+      letter-spacing: -0.01em;
+      margin-bottom: 5px;
+      color: var(--text);
     }
     .subtitle {
       font-size: 13px;
-      color: #666666;
-      margin-bottom: 16px;
+      line-height: 1.45;
+      color: var(--text-2);
+      margin-bottom: 18px;
     }
     .primary-button {
       width: 100%;
-      padding: 12px 16px;
-      border: none;
-      border-radius: 6px;
+      padding: 14px 16px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
       font-size: 14px;
-      font-weight: 500;
+      font-weight: 600;
       cursor: pointer;
-      background: #18A0FB;
-      color: white;
-      transition: all 0.2s;
-      margin-bottom: 8px;
+      color: var(--text);
+      background: linear-gradient(180deg, #26262c 0%, #1c1c21 100%);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 8px 20px rgba(0,0,0,0.45);
+      transition: transform 0.15s ease, box-shadow 0.2s ease, background 0.2s ease;
     }
     .primary-button:hover:not(:disabled) {
-      background: #0d8de0;
+      background: linear-gradient(180deg, #2c2c33 0%, #212127 100%);
       transform: translateY(-1px);
-      box-shadow: 0 2px 8px rgba(24, 160, 251, 0.3);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 10px 24px rgba(0,0,0,0.55);
+    }
+    .primary-button:active:not(:disabled) {
+      transform: translateY(0);
+      box-shadow: inset 0 2px 6px rgba(0,0,0,0.5);
     }
     .primary-button:disabled {
-      opacity: 0.6;
+      opacity: 0.55;
       cursor: not-allowed;
-      transform: none;
-    }
-    .info-badge {
-      background: #f0f8ff;
-      color: #0066cc;
-      padding: 8px 12px;
-      border-radius: 4px;
-      font-size: 13px;
-      margin: 8px 0 12px 0;
-      border-left: 3px solid #18A0FB;
-      display: none;
     }
     .error-message {
-      background: #fff2f0;
-      color: #d32f2f;
+      background: rgba(255, 90, 80, 0.08);
+      color: #ff8a80;
       padding: 10px 12px;
-      border-radius: 6px;
+      border-radius: 8px;
       margin: 12px 0;
       font-size: 13px;
-      border-left: 3px solid #d32f2f;
+      border: 1px solid rgba(255, 90, 80, 0.2);
       display: none;
     }
     .results {
-      margin-top: 16px;
+      margin-top: 18px;
       display: none;
     }
     h2 {
-      font-size: 15px;
+      font-size: 12px;
       font-weight: 600;
-      margin: 16px 0 8px 0;
-      color: #000000;
-    }
-    .summary {
-      display: flex;
-      justify-content: space-between;
-      background: #f5f5f5;
-      padding: 8px 12px;
-      border-radius: 4px;
-      font-size: 13px;
-      margin-bottom: 12px;
-      color: #333;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text-3);
+      margin: 0 0 10px 0;
     }
     .text-list {
-      max-height: 300px;
+      max-height: 260px;
       overflow-y: auto;
-      margin-bottom: 12px;
+      margin-bottom: 14px;
     }
     .text-item {
-      background: #f8f9fa;
-      border-radius: 6px;
-      padding: 10px 12px;
+      background: var(--surface);
+      border-radius: 12px;
+      padding: 12px 14px;
       margin-bottom: 8px;
-      border: 1px solid #e8e8e8;
+      border: 1px solid var(--border);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
     }
     .text-preview {
       font-size: 13px;
-      color: #000000;
-      margin-bottom: 6px;
+      color: var(--text);
+      margin-bottom: 10px;
       display: flex;
-      gap: 4px;
+      gap: 5px;
       flex-wrap: wrap;
     }
     .text-details {
       display: flex;
       flex-wrap: wrap;
-      gap: 12px;
-      font-size: 12px;
-      color: #666;
+      gap: 14px;
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.02em;
+      color: var(--text-2);
     }
     .detail {
       display: flex;
-      gap: 4px;
+      gap: 5px;
       align-items: center;
     }
     .label {
-      color: #888;
+      color: var(--text-3);
+      text-transform: uppercase;
+      font-size: 10px;
     }
     .value {
-      color: #333;
+      color: var(--text);
     }
     .value.highlight {
-      color: #18A0FB;
+      color: var(--accent);
       font-weight: 600;
     }
-    .apply-button {
-      width: 100%;
-      padding: 12px 16px;
-      border: none;
-      border-radius: 6px;
-      font-size: 14px;
-      font-weight: 500;
-      cursor: pointer;
-      background: #00C875;
-      color: white;
-      transition: all 0.2s;
-      margin-top: 4px;
-    }
-    .apply-button:hover {
-      background: #00b368;
-      transform: translateY(-1px);
-      box-shadow: 0 2px 8px rgba(0, 200, 117, 0.3);
-    }
-    .hint {
-      margin-top: 20px;
-      padding: 16px;
-      background: #f8f9fa;
-      border-radius: 6px;
-      font-size: 13px;
-      color: #444;
-      border: 1px solid #e8e8e8;
-    }
-    .hint p {
-      margin-bottom: 8px;
-    }
-    .hint ol {
-      padding-left: 20px;
-      margin: 0;
-    }
-    .hint li {
-      margin-bottom: 4px;
-    }
     .text-list::-webkit-scrollbar {
-      width: 4px;
+      width: 5px;
     }
     .text-list::-webkit-scrollbar-track {
-      background: #f1f1f1;
-      border-radius: 2px;
+      background: transparent;
     }
     .text-list::-webkit-scrollbar-thumb {
-      background: #c1c1c1;
-      border-radius: 2px;
+      background: rgba(255, 255, 255, 0.10);
+      border-radius: 3px;
     }
     .footer {
-      margin-top: 16px;
+      margin-top: 18px;
       text-align: center;
-      font-size: 12px;
-      color: #999999;
+      font-size: 11px;
+      color: var(--text-3);
     }
     .footer a {
-      color: #18A0FB;
+      color: var(--accent);
       text-decoration: none;
       font-weight: 500;
     }
@@ -214,7 +176,7 @@
     .footer .credit {
       display: block;
       margin-bottom: 6px;
-      color: #c4c4c4;
+      color: var(--text-3);
     }
     .footer .credit a {
       color: inherit;
@@ -226,10 +188,11 @@
     .demo-viewport {
       position: relative;
       height: 176px;
-      background: #ffffff;
-      border: 1px solid #e8e8e8;
-      border-radius: 8px;
+      background: linear-gradient(180deg, #17171c 0%, #121216 100%);
+      border: 1px solid var(--border);
+      border-radius: 14px;
       overflow: hidden;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 10px 24px rgba(0,0,0,0.4);
     }
     .demo-slide {
       position: absolute;
@@ -254,25 +217,25 @@
     .demo-caption {
       font-size: 12.5px;
       font-weight: 500;
-      color: #444;
+      color: var(--text-2);
       text-align: center;
     }
     .demo-dots {
       display: flex;
       justify-content: center;
       gap: 6px;
-      margin-top: 10px;
+      margin-top: 12px;
     }
     .demo-dots .dot {
-      width: 7px;
-      height: 7px;
+      width: 6px;
+      height: 6px;
       border-radius: 50%;
-      background: #d3d3d3;
+      background: rgba(255, 255, 255, 0.16);
       transition: background 0.3s, transform 0.3s;
     }
     .demo-dots .dot.active {
-      background: #18A0FB;
-      transform: scale(1.15);
+      background: var(--accent);
+      transform: scale(1.25);
     }
     .anim-march {
       stroke-dasharray: 4 4;
@@ -309,25 +272,27 @@
     /* --- Settings sliders --- */
     .settings {
       display: none;
-      background: #f8f9fa;
-      border: 1px solid #e8e8e8;
-      border-radius: 6px;
-      padding: 12px;
-      margin-bottom: 12px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 14px;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
     }
     .setting-row + .setting-row {
-      margin-top: 12px;
+      margin-top: 14px;
     }
     .setting-label {
       display: flex;
       justify-content: space-between;
       font-size: 12px;
-      color: #444;
-      margin-bottom: 6px;
+      color: var(--text-2);
+      margin-bottom: 8px;
     }
     .setting-value {
-      color: #18A0FB;
+      color: var(--accent);
       font-weight: 600;
+      font-family: var(--mono);
     }
     .settings input[type="range"] {
       -webkit-appearance: none;
@@ -335,7 +300,7 @@
       width: 100%;
       height: 4px;
       border-radius: 2px;
-      background: #d8dde3;
+      background: rgba(255, 255, 255, 0.10);
       outline: none;
     }
     .settings input[type="range"]::-webkit-slider-thumb {
@@ -344,10 +309,10 @@
       width: 16px;
       height: 16px;
       border-radius: 50%;
-      background: #18A0FB;
+      background: var(--accent);
       cursor: pointer;
-      border: 2px solid #ffffff;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+      border: 3px solid #17171c;
+      box-shadow: 0 0 0 1px var(--accent), 0 2px 8px rgba(108, 123, 255, 0.45);
     }
   </style>
 </head>
@@ -387,10 +352,10 @@
               <rect x="26" y="49" width="58" height="8" rx="4" fill="#cfd8e0"/>
               <rect x="26" y="64" width="66" height="8" rx="4" fill="#cfd8e0"/>
               <rect x="26" y="79" width="46" height="8" rx="4" fill="#cfd8e0"/>
-              <circle cx="182" cy="59" r="32" fill="#f4f0ef" stroke="#c9b9b7" stroke-width="2"/>
-              <rect x="12" y="20" width="216" height="80" rx="6" fill="none" stroke="#18A0FB" stroke-width="1.5" class="anim-march"/>
+              <circle cx="182" cy="59" r="32" fill="#24242b" stroke="#3a3a42" stroke-width="2"/>
+              <rect x="12" y="20" width="216" height="80" rx="6" fill="none" stroke="#6c7bff" stroke-width="1.5" class="anim-march"/>
               <g class="anim-bob">
-                <path d="M150 92 l0 22 l5.5 -5.5 l4 8 l3.5 -1.5 l-4 -8 l7.5 -0.5 Z" fill="#2f2f2f" stroke="#fff" stroke-width="1.4" stroke-linejoin="round"/>
+                <path d="M150 92 l0 22 l5.5 -5.5 l4 8 l3.5 -1.5 l-4 -8 l7.5 -0.5 Z" fill="#ececef" stroke="#0d0d0f" stroke-width="1.4" stroke-linejoin="round"/>
               </g>
             </svg>
             <div class="demo-caption">1 · Select a text layer <strong>and</strong> a shape</div>
@@ -399,11 +364,11 @@
           <!-- Slide 2: run the plugin -->
           <div class="demo-slide">
             <svg viewBox="0 0 240 118" xmlns="http://www.w3.org/2000/svg">
-              <rect x="34" y="40" width="172" height="34" rx="8" fill="#18A0FB"/>
+              <rect x="34" y="40" width="172" height="34" rx="8" fill="#6c7bff"/>
               <text x="120" y="61" text-anchor="middle" fill="#ffffff" font-family="-apple-system, sans-serif" font-size="13" font-weight="600">✨ Fit text</text>
-              <circle cx="150" cy="57" r="14" fill="#18A0FB" class="anim-ripple"/>
+              <circle cx="150" cy="57" r="14" fill="#6c7bff" class="anim-ripple"/>
               <g class="anim-bob">
-                <path d="M150 60 l0 22 l5.5 -5.5 l4 8 l3.5 -1.5 l-4 -8 l7.5 -0.5 Z" fill="#2f2f2f" stroke="#fff" stroke-width="1.4" stroke-linejoin="round"/>
+                <path d="M150 60 l0 22 l5.5 -5.5 l4 8 l3.5 -1.5 l-4 -8 l7.5 -0.5 Z" fill="#ececef" stroke="#0d0d0f" stroke-width="1.4" stroke-linejoin="round"/>
               </g>
             </svg>
             <div class="demo-caption">2 · Click <strong>Fit text</strong></div>
@@ -412,7 +377,7 @@
           <!-- Slide 3: text fits the shape -->
           <div class="demo-slide">
             <svg viewBox="0 0 240 118" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="120" cy="59" r="50" fill="#f4f0ef" stroke="#c9b9b7" stroke-width="2"/>
+              <circle cx="120" cy="59" r="50" fill="#24242b" stroke="#3a3a42" stroke-width="2"/>
               <rect x="103" y="33" width="34" height="6" rx="3" fill="#c46b6b"/>
               <rect x="91"  y="45" width="58" height="6" rx="3" fill="#c46b6b"/>
               <rect x="83"  y="57" width="74" height="6" rx="3" fill="#c46b6b"/>
