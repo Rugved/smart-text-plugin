@@ -25,6 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const resultsDiv = document.getElementById('results');
   const textListDiv = document.getElementById('text-list');
   const hintDiv = document.getElementById('hint');
+  const helpButton = document.getElementById('help-button');
   const settingsDiv = document.getElementById('settings');
   const padSlider = document.getElementById('pad-slider');
   const fillSlider = document.getElementById('fill-slider');
@@ -416,6 +417,15 @@ document.addEventListener('DOMContentLoaded', () => {
     parent.postMessage({ pluginMessage: { type: 'get-selected-text' } }, '*');
   });
 
+  // Help "?" returns to the instructions page (carousel), hiding results.
+  helpButton.addEventListener('click', () => {
+    resultsDiv.style.display = 'none';
+    hintDiv.style.display = 'block';
+    hideError();
+    idleLabel = 'Fit text';
+    setLoading(false);
+  });
+
   function applyToFigma() {
     if (measuredTexts.length === 0) return;
     measuredTexts.forEach(t => {
@@ -442,17 +452,17 @@ document.addEventListener('DOMContentLoaded', () => {
     renderResults(measureTexts(lastData));
   }
 
-  // Throttle the live re-fit to one run per animation frame so dragging a
-  // slider stays smooth (the fit is too heavy to run on every input event).
-  let refitPending = false;
+  // Debounce the live re-fit so it never runs while the slider is actively
+  // being dragged (the fit is heavy and blocks the drag). It fires only once
+  // the user pauses; the input handler itself stays trivial so drag is smooth.
+  let recomputeTimer = null;
   function scheduleRecompute() {
-    if (refitPending) return;
-    refitPending = true;
-    requestAnimationFrame(() => { refitPending = false; recompute(); });
+    clearTimeout(recomputeTimer);
+    recomputeTimer = setTimeout(recompute, 140);
   }
 
-  // Slider drag: update the value + re-fit live in the panel (no canvas write).
-  // Slider release ('change'): apply the new fit to the canvas (Option B).
+  // Slider drag ('input'): update the value label + a debounced panel preview.
+  // Slider release ('change'): re-fit with the final value, then apply to canvas.
   function bindSlider(slider, valEl, key, suffix) {
     slider.addEventListener('input', () => {
       settings[key] = Number(slider.value);
@@ -460,6 +470,8 @@ document.addEventListener('DOMContentLoaded', () => {
       scheduleRecompute();
     });
     slider.addEventListener('change', () => {
+      clearTimeout(recomputeTimer);
+      recompute();
       applyToFigma();
       parent.postMessage({ pluginMessage: { type: 'save-settings', settings } }, '*');
     });
