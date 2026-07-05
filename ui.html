@@ -29,19 +29,18 @@
       -webkit-font-smoothing: antialiased;
     }
     .container { max-width: 100%; }
-    /* Fill the fixed window; pin button + help + footer to the bottom. */
+    /* Fill the fixed window; button sits under the content, footer pinned bottom. */
     #app {
       display: flex;
       flex-direction: column;
       min-height: 100vh;
-      /* extra top space so the fixed help "?" sits clear of the content */
-      padding: 44px 18px 18px;
+      padding: 18px;
     }
     #app > #hint { order: 1; margin-bottom: 16px; }
     #app > #error-message { order: 2; }
     #app > #results { order: 3; }
-    #app > #measure-button { order: 4; margin-top: auto; }
-    #app > .footer { order: 5; }
+    #app > #measure-button { order: 4; }
+    #app > .footer { order: 5; margin-top: auto; }
     h1 {
       font-size: 21px;
       font-weight: 650;
@@ -109,17 +108,16 @@
       margin-bottom: 14px;
     }
     .help-button {
-      position: fixed;
-      top: 14px;
-      right: 14px;
-      z-index: 10;
-      width: 24px;
-      height: 24px;
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      width: 18px;
+      height: 18px;
       border-radius: 50%;
       border: 1px solid var(--border);
       background: var(--surface);
       color: var(--text-2);
-      font-size: 13px;
+      font-size: 10px;
       font-weight: 600;
       line-height: 1;
       cursor: pointer;
@@ -182,6 +180,7 @@
       border-radius: 3px;
     }
     .footer {
+      position: relative;
       margin-top: 18px;
       text-align: center;
       font-size: 11px;
@@ -420,11 +419,10 @@
       </div>
     </div>
 
-    <button id="help-button" class="help-button" aria-label="Show instructions" title="Instructions">?</button>
-
     <div class="footer">
       <span class="credit">(Built using the <a href="https://github.com/chenglou/pretext" target="_blank" rel="noopener">Pretext</a> library by Cheng Lou)</span>
       Designed by <a href="https://x.com/rugvedvaidya" target="_blank" rel="noopener">Ved</a>
+      <button id="help-button" class="help-button" aria-label="Show instructions" title="Instructions">?</button>
     </div>
   </div>
 
