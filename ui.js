@@ -383,6 +383,7 @@ document.addEventListener('DOMContentLoaded', () => {
         renderResults(measureTexts(msg.data));
         applyToFigma(); // one button: analyse + apply in a single action
         idleLabel = 'Re-fit text';
+        helpButton.style.display = 'block'; // results page: offer "back to instructions"
         setLoading(false);
       } catch (err) {
         console.error(err);
@@ -395,6 +396,7 @@ document.addEventListener('DOMContentLoaded', () => {
       setLoading(false);
       showError(msg.message);
       resultsDiv.style.display = 'none';
+      helpButton.style.display = 'none';
     }
 
     if (msg.type === 'settings' && msg.data
@@ -424,6 +426,7 @@ document.addEventListener('DOMContentLoaded', () => {
   helpButton.addEventListener('click', () => {
     resultsDiv.style.display = 'none';
     hintDiv.style.display = 'block';
+    helpButton.style.display = 'none'; // back on the instructions page
     hideError();
     idleLabel = 'Fit text';
     setLoading(false);

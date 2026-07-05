@@ -108,6 +108,7 @@
       margin-bottom: 14px;
     }
     .help-button {
+      display: none;
       position: absolute;
       right: 0;
       bottom: 0;
@@ -4550,6 +4551,7 @@
           renderResults(measureTexts(msg.data));
           applyToFigma();
           idleLabel = "Re-fit text";
+          helpButton.style.display = "block";
           setLoading(false);
         } catch (err) {
           console.error(err);
@@ -4561,6 +4563,7 @@
         setLoading(false);
         showError(msg.message);
         resultsDiv.style.display = "none";
+        helpButton.style.display = "none";
       }
       if (msg.type === "settings" && msg.data && typeof msg.data.padding === "number" && typeof msg.data.widthFill === "number") {
         settings.padding = msg.data.padding;
@@ -4582,6 +4585,7 @@
     helpButton.addEventListener("click", () => {
       resultsDiv.style.display = "none";
       hintDiv.style.display = "block";
+      helpButton.style.display = "none";
       hideError();
       idleLabel = "Fit text";
       setLoading(false);
