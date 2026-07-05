@@ -27,6 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const hintDiv = document.getElementById('hint');
   const helpButton = document.getElementById('help-button');
   const settingsDiv = document.getElementById('settings');
+  const adjustTitle = document.getElementById('adjust-title');
   const padSlider = document.getElementById('pad-slider');
   const fillSlider = document.getElementById('fill-slider');
   const padVal = document.getElementById('pad-val');
@@ -333,7 +334,9 @@ document.addEventListener('DOMContentLoaded', () => {
     resultsDiv.style.display = 'block';
 
     // Padding / width-fill only affect rectangle fits — show the sliders then.
-    settingsDiv.style.display = texts.some(t => t.isRect) ? 'block' : 'none';
+    const showAdjust = texts.some(t => t.isRect);
+    settingsDiv.style.display = showAdjust ? 'block' : 'none';
+    adjustTitle.style.display = showAdjust ? 'block' : 'none';
 
     textListDiv.innerHTML = texts.map((t) => {
       const changed = t.newFontSize !== t.currentFontSize;
