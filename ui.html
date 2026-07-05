@@ -318,9 +318,6 @@
 </head>
 <body>
   <div id="app" class="container">
-    <h1>Smart Text</h1>
-    <p class="subtitle">Measure and resize text layers accurately</p>
-
     <button id="measure-button" class="primary-button">
       Fit text
     </button>
@@ -328,7 +325,7 @@
     <div id="error-message" class="error-message"></div>
 
     <div id="results" class="results">
-      <h2>Results</h2>
+      <h2>Result</h2>
       <div id="text-list" class="text-list"></div>
       <div id="settings" class="settings">
         <div class="setting-row">
@@ -343,6 +340,7 @@
     </div>
 
     <div id="hint">
+      <h2>Steps</h2>
       <div class="demo">
         <div class="demo-viewport">
           <!-- Slide 1: select a text layer + a shape -->
@@ -4243,9 +4241,10 @@
     function hideError() {
       errorMessage.style.display = "none";
     }
+    let idleLabel = "Fit text";
     function setLoading(isLoading) {
       measureButton.disabled = isLoading;
-      measureButton.textContent = isLoading ? "\u23F3 Fitting\u2026" : "Fit text";
+      measureButton.textContent = isLoading ? "\u23F3 Fitting\u2026" : idleLabel;
     }
     function fontStr(fs, family) {
       return `${fs}px "${family}"`;
@@ -4520,6 +4519,7 @@
           lastData = msg.data;
           renderResults(measureTexts(msg.data));
           applyToFigma();
+          idleLabel = "Re-fit text";
           setLoading(false);
         } catch (err) {
           console.error(err);
