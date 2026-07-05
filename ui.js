@@ -382,7 +382,6 @@ document.addEventListener('DOMContentLoaded', () => {
         lastData = msg.data;
         renderResults(measureTexts(msg.data));
         applyToFigma(); // one button: analyse + apply in a single action
-        idleLabel = 'Re-fit text';
         helpButton.style.display = 'block'; // results page: offer "back to instructions"
         setLoading(false);
       } catch (err) {
