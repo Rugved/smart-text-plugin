@@ -142,7 +142,16 @@
       margin-bottom: 10px;
       display: flex;
       gap: 5px;
-      flex-wrap: wrap;
+      flex-wrap: nowrap;
+      align-items: baseline;
+    }
+    .text-preview .label { flex-shrink: 0; }
+    .text-preview .value {
+      flex: 1;
+      min-width: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
     .text-details {
       display: flex;
@@ -188,7 +197,7 @@
       color: var(--text-3);
     }
     .footer a {
-      color: var(--accent);
+      color: #007BBB;
       text-decoration: none;
       font-weight: 500;
     }
@@ -315,7 +324,7 @@
       margin-bottom: 8px;
     }
     .setting-value {
-      color: var(--accent);
+      color: var(--text);
       font-weight: 600;
       font-family: var(--mono);
     }
@@ -334,10 +343,10 @@
       width: 16px;
       height: 16px;
       border-radius: 50%;
-      background: var(--accent);
+      background: #ffffff;
       cursor: pointer;
       border: 3px solid #17171c;
-      box-shadow: 0 0 0 1px var(--accent), 0 2px 8px rgba(108, 123, 255, 0.45);
+      box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.35), 0 2px 8px rgba(0, 0, 0, 0.5);
     }
   </style>
 </head>
@@ -388,9 +397,9 @@
           <!-- Slide 2: run the plugin -->
           <div class="demo-slide">
             <svg viewBox="0 0 240 118" xmlns="http://www.w3.org/2000/svg">
-              <rect x="34" y="40" width="172" height="34" rx="8" fill="#6c7bff"/>
+              <rect x="34" y="40" width="172" height="34" rx="8" fill="#2c2c33" stroke="#3a3a42" stroke-width="1"/>
               <text x="120" y="61" text-anchor="middle" fill="#ffffff" font-family="-apple-system, sans-serif" font-size="13" font-weight="600">Fit text</text>
-              <circle cx="150" cy="57" r="14" fill="#6c7bff" class="anim-ripple"/>
+              <circle cx="150" cy="57" r="14" fill="#3a3a42" class="anim-ripple"/>
               <g class="anim-bob">
                 <path d="M150 60 l0 22 l5.5 -5.5 l4 8 l3.5 -1.5 l-4 -8 l7.5 -0.5 Z" fill="#ececef" stroke="#0d0d0f" stroke-width="1.4" stroke-linejoin="round"/>
               </g>
@@ -402,11 +411,11 @@
           <div class="demo-slide">
             <svg viewBox="0 0 240 118" xmlns="http://www.w3.org/2000/svg">
               <circle cx="120" cy="59" r="50" fill="#24242b" stroke="#3a3a42" stroke-width="2"/>
-              <rect x="103" y="33" width="34" height="6" rx="3" fill="#c46b6b"/>
-              <rect x="91"  y="45" width="58" height="6" rx="3" fill="#c46b6b"/>
-              <rect x="83"  y="57" width="74" height="6" rx="3" fill="#c46b6b"/>
-              <rect x="86"  y="69" width="68" height="6" rx="3" fill="#c46b6b"/>
-              <rect x="99"  y="81" width="42" height="6" rx="3" fill="#c46b6b"/>
+              <rect x="103" y="33" width="34" height="6" rx="3" fill="#ffffff"/>
+              <rect x="91"  y="45" width="58" height="6" rx="3" fill="#ffffff"/>
+              <rect x="83"  y="57" width="74" height="6" rx="3" fill="#ffffff"/>
+              <rect x="86"  y="69" width="68" height="6" rx="3" fill="#ffffff"/>
+              <rect x="99"  y="81" width="42" height="6" rx="3" fill="#ffffff"/>
               <text x="182" y="26" font-size="18" class="anim-twinkle">✨</text>
             </svg>
             <div class="demo-caption">3 · Text fits the shape perfectly</div>
@@ -4498,7 +4507,7 @@
     function measureTexts(list) {
       return list.map((data) => {
         const fit = data.shape ? fitFontToShape(data) : fitFontToBox(data);
-        const preview = data.characters.length > 50 ? data.characters.substring(0, 47) + "..." : data.characters;
+        const preview = data.characters.replace(/\s+/g, " ").trim().substring(0, 200);
         return Object.assign({
           id: data.id,
           preview,

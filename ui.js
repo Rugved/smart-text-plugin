@@ -315,9 +315,8 @@ document.addEventListener('DOMContentLoaded', () => {
   function measureTexts(list) {
     return list.map(data => {
       const fit = data.shape ? fitFontToShape(data) : fitFontToBox(data);
-      const preview = data.characters.length > 50
-        ? data.characters.substring(0, 47) + '...'
-        : data.characters;
+      // One-line preview; CSS truncates with an ellipsis so it never wraps.
+      const preview = data.characters.replace(/\s+/g, ' ').trim().substring(0, 200);
       return Object.assign({
         id: data.id,
         preview,
