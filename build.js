@@ -36,6 +36,22 @@ esbuild.build({
     process.exit(1);
   }
   html = html.replace(marker, inlined);
+
+  // Embed the Space Grotesk variable font as base64 (networkAccess is "none",
+  // so we can't load webfonts by URL). Regenerated from space-grotesk.woff2.
+  const fontMarker = /\/\* FONT:START \*\/[\s\S]*?\/\* FONT:END \*\//;
+  if (fontMarker.test(html) && fs.existsSync('space-grotesk.woff2')) {
+    const b64 = fs.readFileSync('space-grotesk.woff2').toString('base64');
+    const fontFace =
+      "/* FONT:START */\n" +
+      "    @font-face { font-family: 'Space Grotesk'; font-style: normal; " +
+      "font-weight: 300 700; font-display: block; " +
+      "src: url(data:font/woff2;base64," + b64 + ") format('woff2'); }\n" +
+      "    /* FONT:END */";
+    html = html.replace(fontMarker, fontFace);
+    console.log('✅ Embedded Space Grotesk (' + b64.length + ' b64 chars)');
+  }
+
   fs.writeFileSync('ui.html', html);
 
   console.log('✅ Inlined bundle into ui.html (' + safeBundle.length + ' bytes)');
