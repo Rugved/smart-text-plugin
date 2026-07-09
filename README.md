@@ -4,6 +4,10 @@ A Figma plugin that fits any text layer neatly inside a shape or box — **circl
 
 > **Community listing:** https://www.figma.com/community/plugin/1656598363853805099
 
+<p align="center">
+  <img src="docs/screenshot.png" alt="Smart Text · Fit to Shape — plugin UI" width="380" />
+</p>
+
 ---
 
 ## Features
